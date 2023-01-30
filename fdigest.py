@@ -99,8 +99,9 @@ def main():
     digest_rows_dictlist = []
     i = 0
     for filename_dir_record in filename_dir_list:
+        i+=1
         print(
-            f'{datetime.datetime.now()}\tProcessing {i + 1}:{len(filename_dir_list)}\t'
+            f'{datetime.datetime.now()}\tProcessing {i}:{len(filename_dir_list)}\t'
             f'{os.path.join(filename_dir_record[0], filename_dir_record[1])}')
         digest_record = process_record(filename_dir_record)
         digest_rows_dictlist.append(digest_record)
