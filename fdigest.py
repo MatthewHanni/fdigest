@@ -33,7 +33,7 @@ def get_sha512_hash(file_path):
 
 
             Returns:
-                    hasher_hexdigest (str): Hexidecimal SHA512 hash digest for the file
+                    hasher_hexdigest (str): Hexadecimal SHA512 hash digest for the file
     """
     block_size = 65536
     hasher = sha512()
@@ -66,40 +66,59 @@ def get_source_path():
 
 
 def process_record(filename_dir_record):
+    """
+    Returns a dictionary of metadata for a particular file
+
+            Parameters:
+                    filename_dir_record (tuple): A root directory and file name. When joined, full path to a file
+
+            Returns:
+                    digest_record (dict): Various metadata for a file
+    """
     file_dir = filename_dir_record[0]
     file_name = filename_dir_record[1]
     file_path = os.path.join(file_dir, file_name)
 
-    digest_record = {}
-    digest_record['file_path'] = file_path
-    digest_record['file_name'] = file_name
-    digest_record['file_dir'] = file_dir
-    digest_record['file_extension'] = pathlib.Path(file_path).suffix
-    digest_record['file_size'] = float(str(os.path.getsize(file_path)))
-    digest_record['file_creation_time'] = str(datetime.datetime.utcfromtimestamp(os.path.getctime(file_path)))
-    digest_record['last_modification_time'] = str(datetime.datetime.utcfromtimestamp(os.path.getmtime(file_path)))
-    digest_record['sha512_hash'] = get_sha512_hash(file_path=file_path)
+    digest_record = {'file_path': file_path,
+                     'file_name': file_name,
+                     'file_dir': file_dir,
+                     'file_extension': pathlib.Path(file_path).suffix,
+                     'file_size': float(str(os.path.getsize(file_path))),
+                     'file_creation_time': str(datetime.datetime.utcfromtimestamp(os.path.getctime(file_path))),
+                     'last_modification_time': str(datetime.datetime.utcfromtimestamp(os.path.getmtime(file_path))),
+                     'sha512_hash': get_sha512_hash(file_path=file_path)}
     return digest_record
 
 
 def write_digest(digest_rows_dictlist):
+    """
+    Write the list of dictionaries to a CSV file.
+
+            Parameters:
+                    digest_rows_dictlist (list): List of dictionaries; each containing the metadata for a single file.
+
+    """
     run_timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     digest_csv = f'fdigest--{run_timestamp}.csv'
     fieldnames = ["file_path", "file_name", "file_dir", "file_extension", "file_size", "file_creation_time",
                   "last_modification_time", "sha512_hash"]
-    with open(digest_csv, 'w', newline='') as f:
+    with open(digest_csv, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(digest_rows_dictlist)
 
 
 def main():
+    """
+    Script orchestration.
+
+    """
     source_path = get_source_path()
     filename_dir_list = walk_dir(source_path=source_path)
     digest_rows_dictlist = []
     i = 0
     for filename_dir_record in filename_dir_list:
-        i+=1
+        i += 1
         print(
             f'{datetime.datetime.now()}\tProcessing {i}:{len(filename_dir_list)}\t'
             f'{os.path.join(filename_dir_record[0], filename_dir_record[1])}')
