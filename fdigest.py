@@ -25,6 +25,7 @@ def walk_dir(source_path):
 
 
 def get_sha512_hash(file_path):
+    return None
     """
     Returns the SHA512 hash of the file located at file_path
 
